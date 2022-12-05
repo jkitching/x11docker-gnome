@@ -1,0 +1,91 @@
+#!/bin/sh
+
+ARGS=(
+
+# Run verbosely.  Shows journalctl logs from container.
+--verbose
+
+# Use the Xephyr X server, which runs in a nested window.  Allows using
+# Ctrl+Shift to grab the keyboard/mouse, which can be useful to avoid shortcuts
+# getting intercepted by the host.  Also try --xpra and --weston-xwayland for
+# dynamic resizing of the window.  Use --xorg for a full session in a separate
+# tty.  Check out x11docker documentation for more options, and experiment to
+# find what works best with your setup.
+--xephyr
+#--xpra
+#--weston-xwayland
+#--xorg
+
+# Size of the nested window.
+--size=1600x1200
+
+# Run in desktop mode.  Remove this if you'd like to run a single application
+# and integrate it into your current window manager.
+--desktop
+
+# Allow becoming the root user (password: x11docker).
+--sudouser
+
+# Enable clipboard for copying text to and from the container.
+--clipboard
+
+# Use systemd for initialization.
+--init=systemd
+
+# Enable dbus, which GNOME is heavily dependent on.
+--dbus
+
+# Allow udev events to get sent into the container.
+--network=host
+--share=/run/udev/control
+
+# Allow write access to any specific system devices.
+#--share=/sys/class/backlight/intel_backlight
+#--share=/sys/class/bluetooth/hci0
+#--share=/sys/class/nvme/nvme0
+#--share=/sys/class/power_supply/BAT0
+
+# Share the host's GNOME extensions directory.  The first line isn't working,
+# so manually create a symbolic link.  See this issue:
+# https://github.com/mviereck/x11docker/issues/475
+--share=$HOME/.local/share/gnome-shell/extensions
+--runasuser='ln -s /home.host/.local/share/gnome-shell/extensions ~/.local/share/gnome-shell'
+
+# Enable HiDPI scaling if your screen has dense pixels.
+#--runasuser='gsettings set org.gnome.desktop.interface scaling-factor 2'
+
+# Allow use of Shift+F2 to bring up the Run dialog, which is useful since
+# Alt+F2 is intercepted by the host.
+--runasuser="gsettings set org.gnome.desktop.wm.keybindings panel-run-dialog \"['\\\\<Alt\\\\>F2','\\\\<Shift\\\\>F2']\""
+
+# Use keyboard layouts specified by the host.  (You might need to add them to
+# the Dockerfile if they are not available by default.)
+--runasuser="gsettings set org.gnome.desktop.input-sources sources \"`gsettings get org.gnome.desktop.input-sources sources`\""
+
+# Don't show the "No lock screen" warning when gnome-shell starts.
+--runasuser='touch .local/share/gnome-shell/lock-warning-shown'
+
+# Enable XTEST extension in X, which is required by /usr/lib/gsd-power in GNOME
+# versions 3.30 and under.
+--xtest
+
+# Everything after the first -- is sent directly to the container engine.
+--
+
+# Add the SYS_NICE capability, which is required to run the gnome-shell binary
+# for versions 3.38 and under.
+--cap-add=SYS_NICE
+
+# After the second -- comes the image name, and the command to run.  The
+# command defaults to whatever follows CMD in the Dockerfile.
+--
+
+)
+
+if [ $# -eq 0 ] ; then
+    echo "Usage: $0 [IMAGE [COMMAND [ARG1 ARG2 ...]]]"
+    echo "       where IMAGE is usually in the form gnome-shell-x.y"
+    exit 1
+fi
+
+x11docker "${ARGS[@]}" "$@"
