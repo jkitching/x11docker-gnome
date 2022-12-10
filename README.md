@@ -9,9 +9,10 @@ A collection of Dockerfiles for building images with different versions of GNOME
 The recommended workflow is as follows:
 
 ```sh
-# Pull all images from Docker Hub:
+# Pull images from Docker Hub:
 #   docker.io/jkitching/gnome-shell-XYZ
-make pull all
+make pull gnome-shell-39 gnome-shell-40  # pull individual images
+make pull all                            # pull all images
 
 # Copy the run shell script template
 cp run-gnome-shell.sh.template run-gnome-shell.sh
