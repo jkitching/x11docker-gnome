@@ -19,9 +19,13 @@ ARGS=(
 # Size of the nested window.
 --size=1600x1200
 
-# Run in desktop mode.  Remove this if you'd like to run a single application
-# and integrate it into your current window manager.
+# Run in desktop mode.  Remove this line to run a single application and
+# integrate it into your host desktop interface (seamless mode).  Use --nxagent
+# or --xpra in this case.
 --desktop
+
+# Enable GPU hardware acceleration.
+#--gpu
 
 # Allow becoming the root user (password: x11docker).
 --sudouser
