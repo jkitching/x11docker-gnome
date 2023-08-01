@@ -26,3 +26,15 @@ vim run-gnome-shell.sh
 ```
 
 For more details on how it all works, check out this blog post: [GNOME development with x11docker containers](https://joelkitching.com/gnome-development-with-x11docker-containers/).
+
+## Included packages
+
+* **gnome-terminal**
+* **gnome-extensions-app** (separate package from GNOME 3.36 onward)
+* **nautilus** for file browsing
+* **xdg-user-dirs** creates directories required for taking screenshots
+* **mesa-dri-drivers** and **mesa-libGL** for GPU acceleration
+* **Xephyr** for displaying GDM login screen
+* **xdotool** and **wmctrl** for programmatically controlling X11
+* **iproute** for `ss` tool used to query TCP and other sockets (e.g. find open ports)
+* **gnome-tour** is removed, because we don't want a tour

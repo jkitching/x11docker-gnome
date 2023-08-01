@@ -1,7 +1,9 @@
 FROM fedora:29
 
-# gnome-extensions-app package does not exist;
-# use gnome-shell-extension-prefs bundled in gnome-shell instead
+# The gnome-extensions-app package does not exist in GNOME 3.34 and earlier;
+# use gnome-shell-extension-prefs bundled in gnome-shell instead.
+# Some GNOME functionality (e.g. taking screenshots) requires directories
+# created by xdg-user-dirs.
 RUN dnf -y update && \
     dnf -y install \
         @base-x \
@@ -10,12 +12,17 @@ RUN dnf -y update && \
         gnome-shell \
         gnome-terminal \
         nautilus \
+        xdg-user-dirs \
         mesa-dri-drivers \
         mesa-libGL \
+        Xephyr \
+        xdotool \
+        wmctrl \
+        iproute \
         && \
     dnf clean all
 
-# Stop showing "Authentication Required to Create Managed Color Device"
+# Stop showing "Authentication Required to Create Managed Color Device":
 # http://c-nergy.be/blog/?p=12073
 RUN echo $'[Allow Colord all Users]\n\
 Identity=unix-user:*\n\
