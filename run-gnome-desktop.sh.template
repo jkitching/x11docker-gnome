@@ -80,6 +80,10 @@ ARGS=(
 # for versions 3.38 and under.
 --cap-add=SYS_NICE
 
+# Add SYS_CHROOT and SYS_ADMIN capabilities, which are required by Fedora 40.
+--cap-add=SYS_CHROOT
+--cap-add=SYS_ADMIN
+
 # After the second -- comes the image name, and the command to run.  The
 # command defaults to whatever follows CMD in the Dockerfile.
 --
