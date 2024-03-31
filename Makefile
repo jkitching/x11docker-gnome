@@ -23,6 +23,7 @@ ifeq (build,$(filter build,$(MAKECMDGOALS)))
 	docker build -t $< -f $@.Dockerfile .
 endif
 ifeq (forcebuild,$(filter forcebuild,$(MAKECMDGOALS)))
+	docker pull `grep ^FROM $@.Dockerfile | sed 's@.* @@'`
 	docker build --no-cache -t $< -f $@.Dockerfile .
 endif
 ifeq (pull,$(filter pull,$(MAKECMDGOALS)))
