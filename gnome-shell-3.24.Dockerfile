@@ -34,4 +34,4 @@ ResultAny=no\n\
 ResultInactive=no\n\
 ResultActive=yes' > /etc/polkit-1/localauthority/50-local.d/45-allow-colord.pkla
 
-CMD gnome-session
+CMD ["gnome-session"]

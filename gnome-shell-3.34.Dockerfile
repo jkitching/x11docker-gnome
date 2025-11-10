@@ -41,4 +41,4 @@ RUN sed -i /lib/systemd/system/systemd-logind.service \
     -e '/ProtectSystem=/s/^/#/g' \
     -e '/ReadWritePaths=/s/^/#/g'
 
-CMD gnome-session
+CMD ["gnome-session"]
