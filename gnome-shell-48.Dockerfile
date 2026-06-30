@@ -1,4 +1,7 @@
+# syntax=docker/dockerfile:1.4
 FROM fedora:42
+
+RUN echo -e '[main]\nmax_parallel_downloads=10\nfastestmirror=True' >> /etc/dnf/dnf.conf
 
 RUN dnf -y update && \
     dnf -y install \
@@ -12,6 +15,7 @@ RUN dnf -y update && \
         mesa-dri-drivers \
         mesa-libGL \
         Xephyr \
+        xorg-x11-server-Xvfb \
         xdotool \
         wmctrl \
         iproute \
@@ -20,13 +24,13 @@ RUN dnf -y update && \
     dnf clean all
 
 # Workaround for gnome-extensions-app SIGILL crash - use software rendering
-RUN mv /usr/bin/gnome-extensions-app /usr/bin/gnome-extensions-app.real && \
-    cat > /usr/local/bin/gnome-extensions-app-wrapper << 'EOF' && \
-    chmod +x /usr/local/bin/gnome-extensions-app-wrapper && \
-    ln -s /usr/local/bin/gnome-extensions-app-wrapper /usr/bin/gnome-extensions-app
+RUN mv /usr/bin/gnome-extensions-app /usr/bin/gnome-extensions-app.real
+RUN cat > /usr/local/bin/gnome-extensions-app-wrapper <<'EOF'
 #!/bin/sh
 GSK_RENDERER=cairo LIBGL_ALWAYS_SOFTWARE=1 exec /usr/bin/gnome-extensions-app.real "$@"
 EOF
+RUN chmod +x /usr/local/bin/gnome-extensions-app-wrapper && \
+    ln -sf /usr/local/bin/gnome-extensions-app-wrapper /usr/bin/gnome-extensions-app
 
 # Stop showing "Authentication Required to Create Managed Color Device":
 # http://c-nergy.be/blog/?p=12073
