@@ -29,3 +29,5 @@ ResultInactive=no\n\
 ResultActive=yes' > /etc/polkit-1/localauthority/50-local.d/45-allow-colord.pkla
 
 CMD ["gnome-session"]
+
+LABEL org.opencontainers.image.source="https://github.com/jkitching/x11docker-gnome"

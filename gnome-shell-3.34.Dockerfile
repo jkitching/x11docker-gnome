@@ -42,3 +42,5 @@ RUN sed -i /lib/systemd/system/systemd-logind.service \
     -e '/ReadWritePaths=/s/^/#/g'
 
 CMD ["gnome-session"]
+
+LABEL org.opencontainers.image.source="https://github.com/jkitching/x11docker-gnome"

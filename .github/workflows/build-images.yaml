@@ -1,0 +1,107 @@
+name: Build and push images
+
+on:
+  push:
+    branches: [master]
+  schedule:
+    # Weekly rebuild so images pick up package updates
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    outputs:
+      images: ${{ steps.set.outputs.images }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set
+        run: echo "images=$(ls *.Dockerfile | sed 's/\.Dockerfile$//' | jq -R . | jq -sc .)" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: list
+    runs-on: ubuntu-latest
+    name: ${{ matrix.image }}
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJson(needs.list.outputs.images) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build
+        run: >
+          docker build
+          -t "ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:latest"
+          -f "${{ matrix.image }}.Dockerfile" .
+
+      - name: Push
+        run: docker push "ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:latest"
+
+  # Package visibility cannot be changed via any API — new GHCR packages are
+  # always created private and need a one-time manual flip in the web UI.
+  # This job detects non-public packages after a build and keeps a checklist
+  # issue open, assigned to the repo owner, until they are all public.
+  visibility-reminder:
+    needs: [list, build]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      issues: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      OWNER: ${{ github.repository_owner }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Find non-public packages
+        id: check
+        run: |
+          body=""
+          for f in *.Dockerfile; do
+            name="${f%.Dockerfile}"
+            vis=$(gh api "/users/${OWNER}/packages/container/${name}" --jq .visibility 2>/dev/null || echo "unknown")
+            if [ "${vis}" != "public" ]; then
+              body="${body}- [ ] [${name}](https://github.com/users/${OWNER}/packages/container/${name}/settings) (currently: ${vis})"$'\n'
+            fi
+          done
+          {
+            echo "body<<BODY_EOF"
+            printf '%s' "${body}"
+            echo "BODY_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: File or update reminder issue
+        if: steps.check.outputs.body != ''
+        env:
+          BODY: ${{ steps.check.outputs.body }}
+        run: |
+          title="Make new GHCR packages public"
+          header="The following packages are not public. New GHCR packages are always created private, and visibility can only be changed in the web UI (Package settings → Danger Zone → Change visibility → Public). This issue is updated automatically by the build-images workflow."
+          full_body="$(printf '%s\n\n%s' "${header}" "${BODY}")"
+          existing=$(gh issue list --state open --search "in:title \"${title}\"" --json number --jq '.[0].number // empty')
+          if [ -n "${existing}" ]; then
+            gh issue edit "${existing}" --body "${full_body}"
+          else
+            gh issue create --title "${title}" --assignee "${OWNER}" --body "${full_body}"
+          fi
+
+      - name: Close reminder issue when everything is public
+        if: steps.check.outputs.body == ''
+        run: |
+          title="Make new GHCR packages public"
+          existing=$(gh issue list --state open --search "in:title \"${title}\"" --json number --jq '.[0].number // empty')
+          if [ -n "${existing}" ]; then
+            gh issue close "${existing}" --comment "All GHCR packages are public now — closing automatically."
+          fi

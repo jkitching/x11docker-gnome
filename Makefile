@@ -1,6 +1,6 @@
 DOCKERFILES=$(shell find * -type f -name \*.Dockerfile)
 NAMES=$(subst /,\:,$(subst .Dockerfile,,$(DOCKERFILES)))
-REGISTRY?=docker.io
+REGISTRY?=ghcr.io
 ACCOUNT?=jkitching
 IMAGES=$(addprefix $(subst :,\:,$(REGISTRY)/$(ACCOUNT))/,$(NAMES))
 
