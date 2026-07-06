@@ -1,6 +1,7 @@
-# First Wayland-only GNOME (the X11 session was removed upstream).
-# For an X11 session — possible on 49 only — see gnome-shell-49-x11.Dockerfile.
-FROM fedora:43
+# docker.io/library/fedora has no 44 tag: Fedora publishes official container
+# images to quay.io as of 44.
+
+FROM quay.io/fedora/fedora:44
 
 RUN dnf -y update && \
     dnf -y install \

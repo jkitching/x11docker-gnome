@@ -1,9 +1,16 @@
-# First Wayland-only GNOME (the X11 session was removed upstream).
-# For an X11 session — possible on 49 only — see gnome-shell-49-x11.Dockerfile.
+# GNOME 49 with an X11 session restored via the frantisekz/GNOME-X11 COPR.
+# No stock distro ships this configuration, and 49 is the last version
+# where it is possible at all — 50+ is Wayland-only.
 FROM fedora:43
+
+# Enable COPR repository for GNOME X11 support
+RUN dnf -y copr enable frantisekz/GNOME-X11
 
 RUN dnf -y update && \
     dnf -y install \
+        xorg-x11-xinit \
+        gnome-session-xsession \
+        gnome-classic-session-xsession \
         @base-x \
         dbus-x11 \
         gnome-session \
