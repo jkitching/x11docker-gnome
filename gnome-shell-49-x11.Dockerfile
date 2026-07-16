@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.4
 # GNOME 49 with an X11 session restored via the frantisekz/GNOME-X11 COPR.
 # No stock distro ships this configuration, and 49 is the last version
 # where it is possible at all — 50+ is Wayland-only.
@@ -78,13 +79,13 @@ exit 1
 EOF
 
 # Workaround for gnome-extensions-app SIGILL crash - use software rendering
-RUN mv /usr/bin/gnome-extensions-app /usr/bin/gnome-extensions-app.real && \
-    cat > /usr/local/bin/gnome-extensions-app-wrapper << 'EOF' && \
-    chmod +x /usr/local/bin/gnome-extensions-app-wrapper && \
-    ln -s /usr/local/bin/gnome-extensions-app-wrapper /usr/bin/gnome-extensions-app
+RUN mv /usr/bin/gnome-extensions-app /usr/bin/gnome-extensions-app.real
+COPY <<'EOF' /usr/local/bin/gnome-extensions-app-wrapper
 #!/bin/sh
 GSK_RENDERER=cairo LIBGL_ALWAYS_SOFTWARE=1 exec /usr/bin/gnome-extensions-app.real "$@"
 EOF
+RUN chmod +x /usr/local/bin/gnome-extensions-app-wrapper && \
+    ln -s /usr/local/bin/gnome-extensions-app-wrapper /usr/bin/gnome-extensions-app
 
 # Stop showing "Authentication Required to Create Managed Color Device":
 # http://c-nergy.be/blog/?p=12073

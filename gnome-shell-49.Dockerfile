@@ -69,7 +69,7 @@ RUN chmod +x /usr/sbin/bwrap
 
 # Workaround for gnome-extensions-app SIGILL crash - use software rendering
 RUN mv /usr/bin/gnome-extensions-app /usr/bin/gnome-extensions-app.real
-RUN cat > /usr/local/bin/gnome-extensions-app-wrapper <<'EOF'
+COPY <<'EOF' /usr/local/bin/gnome-extensions-app-wrapper
 #!/bin/sh
 GSK_RENDERER=cairo LIBGL_ALWAYS_SOFTWARE=1 exec /usr/bin/gnome-extensions-app.real "$@"
 EOF
