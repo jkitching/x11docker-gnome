@@ -31,7 +31,7 @@ Images are rebuilt weekly on CI and published to `ghcr.io/jkitching/gnome-shell-
 
 ## Wayland, X11, and GNOME 49+
 
-GNOME 49 removed the X11 session upstream, and 50+ is Wayland-only everywhere.  The `gnome-shell-49` and `gnome-shell-50` images are stock Wayland-only builds; `gnome-shell-49-x11` restores an X11 session on 49 via the [frantisekz/GNOME-X11 COPR](https://copr.fedorainfracloud.org/coprs/frantisekz/GNOME-X11/) for X-based x11docker modes---49 is the last version where that is possible.  (Fedora also publishes its official base images to quay.io as of 44, which is why `gnome-shell-50` builds from `quay.io/fedora/fedora:44`.)
+GNOME 49 removed the X11 session upstream, and 50+ is Wayland-only everywhere.  The `gnome-shell-49`, `gnome-shell-50` and `gnome-shell-51` images are stock Wayland-only builds; `gnome-shell-49-x11` restores an X11 session on 49 via the [frantisekz/GNOME-X11 COPR](https://copr.fedorainfracloud.org/coprs/frantisekz/GNOME-X11/) for X-based x11docker modes---49 is the last version where that is possible.  (Fedora also publishes its official base images to quay.io as of 44, which is why `gnome-shell-50` and `gnome-shell-51` build from `quay.io/fedora/fedora:44` and `:45`.)
 
 ## Headless / CI use
 
