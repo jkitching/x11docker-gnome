@@ -2,7 +2,7 @@ name: Build and push images
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   schedule:
     # Weekly rebuild so images pick up package updates
     - cron: '17 4 * * 1'
